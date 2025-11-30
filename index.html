@@ -18,6 +18,60 @@
             <button class="tab-btn" onclick="switchTab('segmentation')">Segmentation</button>
         </div>
 
+        <div id="paging" class="mode-container active">
+            <div class="grid-layout">
+                
+                
+                <div class="controls">
+                    <div class="card">
+                        <div class="card-title">Configuration</div>
+                        <div class="input-group">
+                            <label>Physical Frames</label>
+                            <input type="number" id="pgFrames" value="4" min="1" max="8" title="Number of physical frames">
+                        </div>
+                        <div class="input-group">
+                            <label>Page Size</label>
+                            <select id="pgSize" title="Select page size">
+                                <option value="1024">1 KB</option>
+                                <option value="2048">2 KB</option>
+                                <option value="4096">4 KB</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Algorithm</label>
+                            <select id="pgAlgo" title="Select replacement algorithm">
+                                <option value="FIFO">FIFO</option>
+                                <option value="LRU">LRU</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" onclick="initPaging()">Reset System</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Access Memory</div>
+                        <div class="input-group">
+                            <label>Logical Address (Integer)</label>
+                            <input type="number" id="pgAddr" placeholder="e.g. 5200" onkeypress="handleEnter(event, stepPaging)">
+                        </div>
+                        <button class="btn btn-primary" onclick="stepPaging()">Access</button>
+                    </div>
+                </div>
+
+                
+                <div class="visuals">
+                    <div id="pagingMath" class="status-bar">System ready. Waiting for input...</div>
+                    
+                    <div class="memory-rack" id="pagingFrames">
+                        
+                    </div>
+
+                    <div class="log-panel" id="pagingLogs">
+                        <div class="log-entry">> System initialized.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 <script src="script.js"></script>
 </body>
