@@ -1,4 +1,35 @@
+function toggleTheme() {
+    const body = document.body;
+    body.classList.toggle('dark-mode');
+    
+    const isDark = body.classList.contains('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    
+    updateThemeIcon(isDark);
+}
 
+function updateThemeIcon(isDark) {
+    const icon = document.getElementById('themeIcon');
+    icon.textContent = isDark ? '☀️' : '🌙';
+}
+
+function loadTheme() {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark') {
+        document.body.classList.add('dark-mode');
+        updateThemeIcon(true);
+    } else {
+        updateThemeIcon(false);
+    }
+}
+
+function switchTab(mode) {
+    document.querySelectorAll('.mode-container').forEach(d => d.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(mode).classList.add('active');
+    event.target.classList.add('active');
+}
+function handleEnter(e, func) { if(e.key === 'Enter') func(); }
 
 async function initPaging() {
     const frames = document.getElementById('pgFrames').value;
