@@ -72,6 +72,41 @@
             </div>
         </div>
 
+        <div id="segmentation" class="mode-container">
+            <div class="layout-stacked">
+                <div class="controls">
+                    <div class="card">
+                        <div class="card-title">Segment Table</div>
+                        <table class="clean-table">
+                            <thead><tr><th>ID</th><th>Base</th><th>Limit</th></tr></thead>
+                            <tbody id="segTableBody"></tbody>
+                        </table>
+                        <button class="btn btn-secondary btn-margin-top" onclick="initSegmentation()">Update Table</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Translate Address</div>
+                        <div class="input-group">
+                            <label>Segment ID</label>
+                            <input type="number" id="segIndex" placeholder="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Offset</label>
+                            <input type="number" id="segOffset" placeholder="100" onkeypress="handleEnter(event, stepSegmentation)">
+                        </div>
+                        <button class="btn btn-primary" onclick="stepSegmentation()">Calculate</button>
+                    </div>
+                </div>
+
+                <div class="visuals">
+                    <div id="segMath" class="status-bar">Segmentation logic ready.</div>
+                    <div class="log-panel" id="segLogs">
+                        <div class="log-entry">> Segment simulator active.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 <script src="script.js"></script>
 </body>
