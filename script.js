@@ -115,7 +115,7 @@ function drawFrames(frames, activeIdx, status) {
 
 
 window.onload = () => { 
-    
+    loadTheme();
     initPaging(); 
-
+    initSegmentation(); 
 };
