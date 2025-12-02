@@ -1,7 +1,7 @@
 # 🧠 Memory Management Visualizer  
 *A clean, interactive tool to understand OS memory management.*
 
-🔗 **Live Demo:** https://praveencity.github.io/Memory-Management/
+🔗 **Live Demo:** https://praveencity.github.io/Memory-Management-Visualizer/
 
 ---
 
