@@ -17,8 +17,9 @@
     <div class="container">
         
         <div class="tab-bar">
-            <button class="tab-btn active" onclick="switchTab('paging')">Paging</button>
-            <button class="tab-btn" onclick="switchTab('segmentation')">Segmentation</button>
+            <button class="tab-btn active" onclick="switchTab('paging', this)">Paging</button>
+            <button class="tab-btn" onclick="switchTab('segmentation', this)">Segmentation</button>
+
         </div>
 
         <div id="paging" class="mode-container active">
@@ -47,7 +48,7 @@
                                 <option value="LRU">LRU</option>
                             </select>
                         </div>
-                        <button class="btn btn-secondary" onclick="initPaging()">Reset System</button>
+                        <button class="btn btn-secondary" onclick="initPaging(this)">Reset System</button>
                     </div>
 
                     <div class="card">
@@ -84,7 +85,7 @@
                             <thead><tr><th>ID</th><th>Base</th><th>Limit</th></tr></thead>
                             <tbody id="segTableBody"></tbody>
                         </table>
-                        <button class="btn btn-secondary btn-margin-top" onclick="initSegmentation()">Update Table</button>
+                        <button class="btn btn-secondary btn-margin-top" onclick="initSegmentation(this)">Update Table</button>
                     </div>
 
                     <div class="card">

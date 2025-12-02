@@ -23,65 +23,126 @@ function loadTheme() {
     }
 }
 
-function switchTab(mode) {
+function switchTab(mode, btn) {
     document.querySelectorAll('.mode-container').forEach(d => d.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
     document.getElementById(mode).classList.add('active');
-    event.target.classList.add('active');
+    btn.classList.add('active'); 
 }
+
+
 function handleEnter(e, func) { if(e.key === 'Enter') func(); }
 
-async function initPaging() {
-    const frames = document.getElementById('pgFrames').value;
-    const size = document.getElementById('pgSize').value;
-    const algo = document.getElementById('pgAlgo').value;
-    
-    const btn = event.target;
-    const originalText = btn.innerText;
-    btn.innerText = "Resetting...";
-    
-    await fetch('/paging/init', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({frames, pageSize: size, algo})
-    });
-    
-    setTimeout(() => { btn.innerText = originalText; }, 500);
+async function initPaging(btn) {
+    const frames = parseInt(document.getElementById('pgFrames').value, 10);
 
-    document.getElementById('pagingLogs').innerHTML = '<div class="log-entry">> Memory cleared. System ready.</div>';
-    drawFrames([], -1, "");
+    pageTable = {};
+    frameToPage = Array(frames).fill(null);
+    lastUsed = Array(frames).fill(-1);
+    nextFrame = 0;
+    globalTime = 0;
+
+    if (btn) {
+        const originalText = btn.innerText;
+        btn.innerText = "Resetting...";
+        setTimeout(() => { btn.innerText = originalText; }, 500);
+    }
+
+    document.getElementById('pagingLogs').innerHTML =
+        '<div class="log-entry">> Memory cleared. System ready.</div>';
+
+    drawFrames(frameToPage, -1, "");
     document.getElementById('pagingMath').innerText = "System reset complete.";
 }
 
+
+let pageTable = {};
+let frameToPage = [];
+let lastUsed = [];       
+let nextFrame = 0;
+let globalTime = 0;
+
 async function stepPaging() {
-    const addr = document.getElementById('pgAddr').value;
-    if(!addr) return;
-    const res = await fetch('/paging/step', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({address: addr})
-    });
-    const data = await res.json();
+    const addrInput = document.getElementById('pgAddr').value;
+    const addr = parseInt(addrInput, 10);
+    const pageSize = parseInt(document.getElementById('pgSize').value, 10);
+    const frames = parseInt(document.getElementById('pgFrames').value, 10);
+    const algo = document.getElementById('pgAlgo').value; // 🚀 IMPORTANT!!
     
-    document.getElementById('pagingMath').innerHTML = 
-        `Logical: ${data.logical_address} = (Page ${data.page_id} × ${document.getElementById('pgSize').value}) + Offset ${data.offset} <br> <strong>Physical Address: ${data.physical_address}</strong>`;
+    if (isNaN(addr)) return;
 
-    
-    const time = new Date().toLocaleTimeString('en-US', {hour12:false});
-    
-    const msg = `
-        <span class="log-time">[${time}]</span>
-        Req: ${data.logical_address} (P${data.page_id}) 
-        <strong style="color: ${data.status === 'HIT' ? '#10b981' : '#ef4444'}">${data.status}</strong> 
-        → Frame ${data.frame_index}
-        ${data.victim !== null ? `<span style="color:#f87171"> [Evicted: P${data.victim}]</span>` : ''}
-    `;
-    
-    const logBox = document.getElementById('pagingLogs');
-    logBox.innerHTML = `<div class="log-entry">${msg}</div>` + logBox.innerHTML;
+    // Initialize structures if needed
+    if (frameToPage.length !== frames) {
+        frameToPage = Array(frames).fill(null);
+        lastUsed = Array(frames).fill(-1);
+        pageTable = {};
+        nextFrame = 0;
+        globalTime = 0;
+    }
 
-    drawFrames(data.memory_state, data.frame_index, data.status);
-    document.getElementById('pgAddr').value = '';
-    document.getElementById('pgAddr').focus();
+    globalTime++;
+
+    const pageNum = Math.floor(addr / pageSize);
+    const offset = addr % pageSize;
+
+    let status = "";
+    let activeFrame = -1;
+
+    // HIT
+    if (pageTable[pageNum] !== undefined) {
+        status = "HIT";
+        activeFrame = pageTable[pageNum];
+        lastUsed[activeFrame] = globalTime; // update LRU time
+    }
+
+    // MISS
+    else {
+        status = "MISS";
+
+        // FIFO
+        if (algo === "FIFO") {
+            activeFrame = nextFrame % frames;
+            nextFrame++;
+        }
+
+        // LRU
+        else if (algo === "LRU") {
+            let minTime = Infinity;
+            let lruFrame = 0;
+
+            for (let i = 0; i < frames; i++) {
+                if (lastUsed[i] < minTime) {
+                    minTime = lastUsed[i];
+                    lruFrame = i;
+                }
+            }
+            activeFrame = lruFrame;
+        }
+
+        // Remove existing page
+        const oldPage = frameToPage[activeFrame];
+        if (oldPage !== null) delete pageTable[oldPage];
+
+        // Insert new page
+        frameToPage[activeFrame] = pageNum;
+        pageTable[pageNum] = activeFrame;
+        lastUsed[activeFrame] = globalTime;
+    }
+
+    drawFrames(frameToPage.map(p => p === null ? "Empty" : p), activeFrame, status);
+
+    document.getElementById("pagingMath").innerText =
+        `Page=${pageNum} Offset=${offset} Frame=${activeFrame} (${status}, ${algo})`;
+
+    document.getElementById("pagingLogs").innerHTML =
+        `<div class="log-entry">> ${status}: Page ${pageNum} → Frame ${activeFrame} (Algo=${algo})</div>`
+        + document.getElementById("pagingLogs").innerHTML;
+
+    document.getElementById("pgAddr").value = "";
+    document.getElementById("pgAddr").focus();
 }
+
 
 function drawFrames(frames, activeIdx, status) {
     const div = document.getElementById('pagingFrames');
@@ -131,48 +192,56 @@ function renderSegInputs() {
 }
 renderSegInputs();
 
-async function initSegmentation() {
+async function initSegmentation(btn) {
     const bases = document.querySelectorAll('.base-in');
     const limits = document.querySelectorAll('.limit-in');
     let segData = [];
-    bases.forEach((b, i) => { segData.push({base: b.value, limit: limits[i].value}); });
 
-    const btn = event.target;
-    btn.innerText = "Saved!";
-    
-    await fetch('/segmentation/init', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({segments: segData})
+    bases.forEach((b, i) => {
+        segData.push({ base: b.value, limit: limits[i].value });
     });
-    
-    setTimeout(() => { btn.innerText = "Update Table"; }, 800);
-    document.getElementById('segLogs').innerHTML = `<div class="log-entry">> Segment table updated.</div>` + document.getElementById('segLogs').innerHTML;
+
+    if (btn) {
+        btn.innerText = "Saved!";
+        setTimeout(() => { btn.innerText = "Update Table"; }, 800);
+    }
+
+    document.getElementById('segLogs').innerHTML =
+        `<div class="log-entry">> Segment table updated (Backend Disabled).</div>` +
+        document.getElementById('segLogs').innerHTML;
 }
 
 async function stepSegmentation() {
-    const s = document.getElementById('segIndex').value;
-    const o = document.getElementById('segOffset').value;
-    const res = await fetch('/segmentation/step', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({seg: s, off: o})
-    });
-    const data = await res.json();
+    const segId = parseInt(document.getElementById("segIndex").value);
+    const offset = parseInt(document.getElementById("segOffset").value);
 
-    let msg = '';
-    const time = new Date().toLocaleTimeString('en-US', {hour12:false});
+    const bases = document.querySelectorAll(".base-in");
+    const limits = document.querySelectorAll(".limit-in");
 
-    if (data.status === 'ERROR' || data.status === 'TRAP') {
-        msg = `<strong style="color:#ef4444">${data.status}</strong>: ${data.error}`;
-    } else {
-        msg = `<strong style="color:#10b981">VALID</strong>: Phys Addr ${data.physical_address}`;
+    if (segId < 0 || segId >= bases.length) {
+        document.getElementById("segMath").innerText = "Invalid segment ID!";
+        return;
     }
-    
-    document.getElementById('segMath').innerHTML = data.status === 'VALID' ? 
-        `Base ${data.physical_address - data.offset} + Offset ${data.offset} = <strong>${data.physical_address}</strong>` : data.error;
-        
-    const logBox = document.getElementById('segLogs');
-    logBox.innerHTML = `<div class="log-entry"><span class="log-time">[${time}]</span> Seg ${s}: ${msg}</div>` + logBox.innerHTML;
+
+    const base = parseInt(bases[segId].value);
+    const limit = parseInt(limits[segId].value);
+
+    if (offset >= limit) {
+        document.getElementById("segMath").innerText =
+            `Segmentation Fault! Offset (${offset}) ≥ Limit (${limit})`;
+        return;
+    }
+
+    const physical = base + offset;
+
+    document.getElementById("segMath").innerText =
+        `Physical Address = Base(${base}) + Offset(${offset}) = ${physical}`;
+
+    document.getElementById("segLogs").innerHTML =
+        `<div class="log-entry">> Translated: ${physical}</div>` +
+        document.getElementById("segLogs").innerHTML;
 }
+
 
 window.onload = () => { 
     loadTheme();
