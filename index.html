@@ -3,93 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memory Visualizer</title>
+    <title>OS Memory Visualizer</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Styles -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <header>
-        <h1>Memory Management Visualizer</h1>
-        <div class="subtitle">Operating System Simulation Suite</div>
-        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Dark Mode">
-            <span id="themeIcon">🌙</span>
-        </button>
-    </header>
-    <div class="container">
+<body class="light-mode">
         
-        <div class="tab-bar">
-            <button class="tab-btn active" onclick="switchTab('paging', this)">Paging</button>
-            <button class="tab-btn" onclick="switchTab('segmentation', this)">Segmentation</button>
+    <header>
+        <div class="header-content">
+            <div class="brand">
+                <i class="ph ph-cpu"></i>
+                <div>
+                    <h1>OS Memory Visualizer</h1>
+                    <div class="subtitle">Interactive Simulation Suite</div>
+                </div>
+            </div>
+            
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Dark Mode">
+                <i class="ph ph-moon" id="themeIcon"></i>
+            </button>
+        </div>
+    </header>
 
+    <div class="container">
+        <!-- Navigation -->
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('paging')">
+                <i class="ph ph-squares-four"></i> Paging
+            </button>
+            <button class="tab-btn" onclick="switchTab('segmentation')">
+                <i class="ph ph-rows"></i> Segmentation
+            </button>
+            <button class="tab-btn" onclick="switchTab('virtualMemory')">
+                <i class="ph ph-swap"></i> Virtual Memory
+            </button>
         </div>
 
+        <!-- PAGING MODULE -->
         <div id="paging" class="mode-container active">
             <div class="grid-layout">
-                
-                
+                <!-- Controls -->
                 <div class="controls">
                     <div class="card">
-                        <div class="card-title">Configuration</div>
+                        <div class="card-title"><i class="ph ph-sliders"></i> Configuration</div>
                         <div class="input-group">
-                            <label>Physical Frames</label>
-                            <input type="number" id="pgFrames" value="4" min="1" max="8" title="Number of physical frames">
+                            <label>Physical Frames (RAM)</label>
+                            <input type="number" id="pgFrames" value="4" min="1" max="8">
                         </div>
                         <div class="input-group">
-                            <label>Page Size</label>
-                            <select id="pgSize" title="Select page size">
-                                <option value="1024">1 KB</option>
-                                <option value="2048">2 KB</option>
-                                <option value="4096">4 KB</option>
+                            <label>Page Size (Bytes)</label>
+                            <select id="pgSize">
+                                <option value="1024">1024 (1 KB)</option>
+                                <option value="2048">2048 (2 KB)</option>
+                                <option value="4096">4096 (4 KB)</option>
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Algorithm</label>
-                            <select id="pgAlgo" title="Select replacement algorithm">
-                                <option value="FIFO">FIFO</option>
-                                <option value="LRU">LRU</option>
+                            <label>Replacement Algorithm</label>
+                            <select id="pgAlgo">
+                                <option value="FIFO">FIFO (First-In First-Out)</option>
+                                <option value="LRU">LRU (Least Recently Used)</option>
                             </select>
                         </div>
-                        <button class="btn btn-secondary" onclick="initPaging(this)">Reset System</button>
+                        <button class="btn btn-secondary" onclick="initPaging()">
+                            <i class="ph ph-arrow-counter-clockwise"></i> Reset System
+                        </button>
                     </div>
 
                     <div class="card">
-                        <div class="card-title">Access Memory</div>
+                        <div class="card-title"><i class="ph ph-lightning"></i> Memory Access</div>
                         <div class="input-group">
                             <label>Logical Address (Integer)</label>
                             <input type="number" id="pgAddr" placeholder="e.g. 5200" onkeypress="handleEnter(event, stepPaging)">
                         </div>
-                        <button class="btn btn-primary" onclick="stepPaging()">Access</button>
+                        <button class="btn btn-primary" onclick="stepPaging()">
+                            <i class="ph ph-play-circle"></i> Access Memory
+                        </button>
                     </div>
                 </div>
 
-                
+                <!-- Visuals -->
                 <div class="visuals">
-                    <div id="pagingMath" class="status-bar">System ready. Waiting for input...</div>
-                    
-                    <div class="memory-rack" id="pagingFrames">
+                    <div class="visual-display">
+                        <div id="pagingMath" class="status-bar">
+                            <i class="ph ph-info"></i> System initialized. Waiting for memory requests...
+                        </div>
                         
-                    </div>
+                        <div class="memory-rack" id="pagingFrames">
+                            <!-- Frames generated by JS -->
+                        </div>
 
-                    <div class="log-panel" id="pagingLogs">
-                        <div class="log-entry">> System initialized.</div>
+                        <div class="log-panel" id="pagingLogs">
+                            <div class="log-entry">
+                                <span class="log-time">System</span>
+                                <span class="log-tag tag-info">INFO</span>
+                                <span>Memory controller ready.</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- SEGMENTATION MODULE -->
         <div id="segmentation" class="mode-container">
-            <div class="layout-stacked">
+            <div class="grid-layout">
                 <div class="controls">
                     <div class="card">
-                        <div class="card-title">Segment Table</div>
+                        <div class="card-title"><i class="ph ph-table"></i> Segment Table</div>
                         <table class="clean-table">
-                            <thead><tr><th>ID</th><th>Base</th><th>Limit</th></tr></thead>
+                            <thead><tr><th>ID</th><th>Base Address</th><th>Limit (Size)</th></tr></thead>
                             <tbody id="segTableBody"></tbody>
                         </table>
-                        <button class="btn btn-secondary btn-margin-top" onclick="initSegmentation(this)">Update Table</button>
+                        <button class="btn btn-secondary" style="margin-top: 1rem;" onclick="initSegmentation()">
+                            <i class="ph ph-check-circle"></i> Update Table
+                        </button>
                     </div>
 
                     <div class="card">
-                        <div class="card-title">Translate Address</div>
+                        <div class="card-title"><i class="ph ph-calculator"></i> Address Translation</div>
                         <div class="input-group">
                             <label>Segment ID</label>
                             <input type="number" id="segIndex" placeholder="0">
@@ -98,20 +136,110 @@
                             <label>Offset</label>
                             <input type="number" id="segOffset" placeholder="100" onkeypress="handleEnter(event, stepSegmentation)">
                         </div>
-                        <button class="btn btn-primary" onclick="stepSegmentation()">Calculate</button>
+                        <button class="btn btn-primary" onclick="stepSegmentation()">
+                            <i class="ph ph-function"></i> Translate Address
+                        </button>
                     </div>
                 </div>
 
                 <div class="visuals">
-                    <div id="segMath" class="status-bar">Segmentation logic ready.</div>
-                    <div class="log-panel" id="segLogs">
-                        <div class="log-entry">> Segment simulator active.</div>
+                    <div class="visual-display">
+                        <div id="segMath" class="status-bar">
+                            Segmentation logic ready.
+                        </div>
+                        <div class="log-panel" id="segLogs">
+                            <div class="log-entry">
+                                <span class="log-time">System</span>
+                                <span class="log-tag tag-info">INFO</span>
+                                <span>Segment Simulator active.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIRTUAL MEMORY MODULE -->
+        <div id="virtualMemory" class="mode-container">
+            <div class="grid-layout">
+                <!-- Left: Controls -->
+                <div class="controls">
+                    <div class="card">
+                        <div class="card-title"><i class="ph ph-gear"></i> VM Configuration</div>
+                        <div class="input-group">
+                            <label>Virtual Pages</label>
+                            <input type="number" id="vmPages" value="8" min="1" max="64">
+                        </div>
+                        <div class="input-group">
+                            <label>Physical Frames</label>
+                            <input type="number" id="vmFrames" value="4" min="1" max="16">
+                        </div>
+                        <div class="input-group">
+                            <label>Page Size</label>
+                            <select id="vmPageSize">
+                                <option value="1024">1 KB</option>
+                                <option value="2048">2 KB</option>
+                                <option value="4096">4 KB</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Algorithm</label>
+                            <select id="vmAlgo">
+                                <option value="FIFO">FIFO</option>
+                                <option value="LRU">LRU</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" onclick="initVirtualMemory()">
+                            <i class="ph ph-arrow-counter-clockwise"></i> Reset VM
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title"><i class="ph ph-arrows-left-right"></i> Access Address</div>
+                        <div class="input-group">
+                            <label>Logical Address (Integer)</label>
+                            <input type="number" id="vmAddr" placeholder="e.g. 5200" onkeypress="handleEnter(event, stepVirtualMemory)">
+                        </div>
+                        <button class="btn btn-primary" onclick="stepVirtualMemory()">
+                            <i class="ph ph-play-circle"></i> Access
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right: Visuals -->
+                <div class="visuals">
+                    <div class="visual-display">
+                        <div id="vmMath" class="status-bar">
+                            <i class="ph ph-info"></i> Virtual memory ready. Configure and access a logical address.
+                        </div>
+
+                        <div class="memory-rack" id="vmFramesView">
+                            <!-- VM Frames generated here -->
+                        </div>
+
+                        <div class="card" style="margin-top: 2rem;">
+                            <div class="card-title" style="font-size: 0.95rem;">
+                                <i class="ph ph-hard-drives"></i> Swap Area (Disk)
+                            </div>
+                            <ul class="swap-list" id="vmSwapList">
+                                <li class="swap-item empty">No pages currently in swap.</li>
+                            </ul>
+                        </div>
+
+                        <div class="log-panel" id="vmLogs">
+                            <div class="log-entry">
+                                <span class="log-time">System</span>
+                                <span class="log-tag tag-info">INFO</span>
+                                <span>Virtual Memory simulator active.</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
     </div>
-<script src="script.js"></script>
+
+    <script src="script.js"></script>
 </body>
 </html>
