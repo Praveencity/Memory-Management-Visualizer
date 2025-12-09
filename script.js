@@ -1,4 +1,3 @@
-// --- THEME LOGIC ---
 function toggleTheme() {
     const body = document.body;
     body.classList.toggle('dark-mode');
@@ -31,7 +30,6 @@ function switchTab(mode) {
 
 function handleEnter(e, func) { if(e.key === 'Enter') func(); }
 
-// --- PAGING STATE & LOGIC ---
 let pagingState = {
     frames: [], // Array of objects: { pageId, loadedAt, lastAccess }
     frameCount: 4,
@@ -147,7 +145,6 @@ function logPaging(type, tag, msg) {
     logGeneric('pagingLogs', type, tag, msg);
 }
 
-// --- SEGMENTATION LOGIC ---
 let segmentationState = {
     segments: [
         {base: 1000, limit: 500}, 
@@ -236,8 +233,6 @@ function stepSegmentation() {
     logGeneric('segLogs', status, status, msg);
 }
 
-// --- VIRTUAL MEMORY LOGIC ---
-// VM state
 let vmPageToFrame = []; 
 let vmFrameToPage = []; 
 let vmLastUsed = [];    
@@ -302,12 +297,10 @@ function stepVirtualMemory() {
     let evictedPage = null;
 
     if (frameIndex !== null && frameIndex !== undefined) {
-        // HIT
         status = 'HIT';
         vmStats.hits++;
         vmLastUsed[frameIndex] = vmGlobalTime;
     } else {
-        // MISS
         status = 'MISS';
         vmStats.misses++;
         vmStats.faults++;
@@ -321,7 +314,7 @@ function stepVirtualMemory() {
             if (algo === 'FIFO') {
                 targetFrame = vmNextFrame % frames;
                 vmNextFrame++;
-            } else { // LRU
+            } else {
                 let minTime = Infinity;
                 let lruIdx = 0;
                 for (let i = 0; i < frames; i++) {
@@ -336,13 +329,11 @@ function stepVirtualMemory() {
 
         evictedPage = vmFrameToPage[targetFrame];
 
-        // Evict to swap
         if (evictedPage !== null && evictedPage !== undefined) {
             vmPageToFrame[evictedPage] = null;
             vmInSwap[evictedPage] = true;
         }
 
-        // Bring in new page
         vmFrameToPage[targetFrame] = pageNum;
         vmPageToFrame[pageNum] = targetFrame;
         vmInSwap[pageNum] = false;
@@ -351,7 +342,6 @@ function stepVirtualMemory() {
         frameIndex = targetFrame;
     }
 
-    // UI Updates
     drawVMFrames(frameIndex, status);
     renderVMSwapList();
 
@@ -428,7 +418,6 @@ function renderVMSwapList() {
     }
 }
 
-// --- COMMON UTILS ---
 function animateBtn(btn, text) {
     if(!btn) return;
     const original = btn.innerHTML;
@@ -458,7 +447,6 @@ function logGeneric(elementId, type, tag, msg) {
     panel.insertAdjacentHTML('afterbegin', html);
 }
 
-// --- INIT ---
 window.onload = () => { 
     loadTheme();
     renderSegInputs();

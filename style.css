@@ -1,5 +1,4 @@
 :root {
-    /* Light Theme Variables */
     --primary: #4f46e5;
     --primary-hover: #4338ca;
     --secondary: #64748b;
@@ -21,7 +20,7 @@
     --warning: #f59e0b;
     --warning-bg: #fffbeb;
     
-    --log-bg: #0f172a; /* Slate 900 for Light Mode logs */
+    --log-bg: #0f172a;
     
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
@@ -32,21 +31,19 @@
 }
 
 body.dark-mode {
-    /* Deeper Dark Theme Variables */
     --primary: #6366f1;
     --primary-hover: #818cf8;
     --secondary: #94a3b8;
     
-    /* Much darker backgrounds */
-    --bg-body: #020202;   /* Almost pure black */
-    --bg-card: #121212;   /* Standard dark surface */
-    --bg-input: #000000;  /* Pure black inputs */
+    --bg-body: #020202;
+    --bg-card: #121212;
+    --bg-input: #000000;
     --bg-input-focus: #1a1a1a;
     --bg-tab-bar: #18181b;
     
     --text-main: #ededed;
     --text-muted: #a1a1aa;
-    --border: #27272a;    /* Zinc 800 - darker border */
+    --border: #27272a;
     
     --success: #34d399;
     --success-bg: rgba(5, 150, 105, 0.15);
@@ -55,7 +52,7 @@ body.dark-mode {
     --warning: #fbbf24;
     --warning-bg: rgba(245, 158, 11, 0.15);
     
-    --log-bg: #000000; /* Pure black logs in dark mode */
+    --log-bg: #000000;
     
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.8);
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.8);
@@ -76,7 +73,6 @@ body {
     overflow-x: hidden;
 }
 
-/* --- Header --- */
 header {
     background: var(--bg-card);
     border-bottom: 1px solid var(--border);
@@ -143,7 +139,6 @@ h1 {
     color: var(--primary);
 }
 
-/* --- Layout --- */
 .container {
     width: 90%;
     max-width: 1200px;
@@ -210,7 +205,6 @@ h1 {
     .grid-layout { grid-template-columns: 1fr; }
 }
 
-/* --- Cards & Controls --- */
 .card {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -271,7 +265,6 @@ input:focus, select:focus {
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary), transparent 85%);
 }
 
-/* --- Buttons --- */
 .btn {
     width: 100%;
     padding: 0.85rem;
@@ -314,7 +307,6 @@ input:focus, select:focus {
     color: var(--text-main); 
 }
 
-/* --- Visuals Area --- */
 .visual-display {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -339,7 +331,6 @@ input:focus, select:focus {
     box-shadow: var(--shadow-sm);
 }
 
-/* --- Memory Rack (Paging & VM) --- */
 .memory-rack {
     display: flex;
     flex-wrap: wrap;
@@ -404,7 +395,6 @@ input:focus, select:focus {
     transition: all 0.3s;
 }
 
-/* States */
 .memory-frame.hit {
     border-color: var(--success);
     background: var(--success-bg);
@@ -423,7 +413,6 @@ input:focus, select:focus {
 .memory-frame.miss .frame-content { color: var(--error); } 
 .memory-frame.miss .frame-badge { background: var(--error); color: #fff; }
 
-/* --- Swap List (VM) --- */
 .swap-list {
     list-style: none;
     padding: 0;
@@ -461,9 +450,8 @@ input:focus, select:focus {
     gap: 4px;
 }
 
-/* --- Logs --- */
 .log-panel {
-    background: var(--log-bg); /* Updated to use variable */
+    background: var(--log-bg);
     color: #f1f5f9;
     border-radius: 12px;
     padding: 1rem;
@@ -474,7 +462,7 @@ input:focus, select:focus {
     border: 1px solid var(--border);
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
     display: flex;
-    flex-direction: column-reverse; /* New logs at bottom visually, or we just prepend */
+    flex-direction: column-reverse;
     margin-top: 2rem;
 }
 
@@ -498,7 +486,6 @@ input:focus, select:focus {
 .tag-info { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
 .tag-swap { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
 
-/* --- Segmentation Table --- */
 .clean-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.9rem; }
 .clean-table th { 
     text-align: left; 
@@ -522,7 +509,6 @@ input:focus, select:focus {
     width: 100px;
 }
 
-/* --- Animations --- */
 @keyframes spin-slow { 100% { transform: rotate(360deg); } }
 @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes flash-success { 0% { transform: scale(1); } 50% { transform: scale(1.1); border-color: #34d399; } 100% { transform: scale(1); } }
